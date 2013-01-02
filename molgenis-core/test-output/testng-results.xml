@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="1" passed="1">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="574" started-at="2012-10-30T16:08:52Z" finished-at="2012-10-30T16:08:52Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="574" started-at="2012-10-30T16:08:52Z" finished-at="2012-10-30T16:08:52Z">
+      <class name="org.molgenis.model.MolgenisModelTest">
+        <test-method status="PASS" signature="read()[pri:0, instance:org.molgenis.model.MolgenisModelTest@66e64686]" name="read" duration-ms="552" started-at="2012-10-30T17:08:52Z" finished-at="2012-10-30T17:08:52Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- read -->
+      </class> <!-- org.molgenis.model.MolgenisModelTest -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>

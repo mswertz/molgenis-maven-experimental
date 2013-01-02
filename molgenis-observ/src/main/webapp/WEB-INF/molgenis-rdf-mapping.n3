@@ -1,0 +1,1527 @@
+@prefix map: <file:///stdout#> .
+@prefix db: <> .
+@prefix vocab: <http://localhost:8080/molgenis_distro/vocab/resource/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix d2rq: <http://www.wiwiss.fu-berlin.de/suhl/bizer/D2RQ/0.1#> .
+@prefix jdbc: <http://d2rq.org/terms/jdbc/> .
+@prefix d2r: <http://sites.wiwiss.fu-berlin.de/suhl/bizer/d2r-server/config.rdf#> .
+
+<> a d2r:Server;
+    rdfs:label "D2R Server";
+    d2r:baseURI <http://localhost:8080/pheno/>;
+    d2r:port 8080;
+    d2r:documentMetadata [
+        rdfs:comment "This comment is custom document metadata.";
+    ];
+	d2r:vocabularyIncludeInstances true;    
+    .
+
+# Should be jndi loaded!
+map:database a d2rq:Database;
+	d2rq:jdbcDriver "com.mysql.jdbc.Driver";
+	d2rq:jdbcDSN "jdbc:mysql://localhost/animaldb_pheno?innodb_autoinc_lock_mode=2";
+	d2rq:username "molgenis";
+	d2rq:password "molgenis";
+	jdbc:autoReconnect "true";
+	jdbc:zeroDateTimeBehavior "convertToNull";
+	.
+# Entity Species
+map:Species a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Species/@@Species.id@@";
+	d2rq:class vocab:Species;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "Ontology terms for species. E.g. Arabidopsis thaliana. DISCUSSION: should we avoid subclasses of OntologyTerm and instead make a 'tag' filter on terms so we can make pulldowns context dependent (e.g. to only show particular subqueries of ontologies). ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Species using primary key
+map:Species__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Species;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Species #@@Species.id@@";
+	.
+map:Species_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Species;
+	d2rq:property vocab:Species_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Species.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity AlternateId
+map:AlternateId a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "AlternateId/@@AlternateId.id@@";
+	d2rq:class vocab:AlternateId;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " An external identifier for an annotation. For example: name='R13H8.1', ontology='ensembl' or name='WBgene00000912', ontology='wormbase'. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for AlternateId using primary key
+map:AlternateId__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:AlternateId;
+	d2rq:property rdfs:label;
+	d2rq:pattern "AlternateId #@@AlternateId.id@@";
+	.
+map:AlternateId_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:AlternateId;
+	d2rq:property vocab:AlternateId_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "AlternateId.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity ObservationElement
+map:ObservationElement a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "ObservationElement/@@ObservationElement.id@@";
+	d2rq:class vocab:ObservationElement;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " Elements that are the targets or features we are looking at of our research. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for ObservationElement using primary key
+map:ObservationElement__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationElement;
+	d2rq:property rdfs:label;
+	d2rq:pattern "ObservationElement #@@ObservationElement.id@@";
+	.
+map:ObservationElement_ontologyReference a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationElement;
+	d2rq:property vocab:ObservationElement_ontologyReference;
+	d2rq:propertyDefinitionLabel "ontologyReference";
+	d2rq:propertyDefinitionComment "(Optional) Reference to the formal ontology definition for this element, e.g. 'Animal' or 'GWAS protocol'";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "ObservationElement.id <= ObservationElement_ontolo12449.InvestigationElement";
+	d2rq:join "ObservationElement_ontolo12449.ontologyReference => OntologyTerm.id";
+	.
+map:ObservationElement___Type a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationElement;
+	d2rq:property vocab:ObservationElement___Type;
+	d2rq:propertyDefinitionLabel "__Type";
+	d2rq:propertyDefinitionComment "Subtypes have to be set to allow searching";
+	d2rq:column "ObservationElement.__Type";
+	d2rq:datatype xsd:string;
+	.
+map:ObservationElement_alternateId a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationElement;
+	d2rq:property vocab:ObservationElement_AlternateId;
+	d2rq:propertyDefinitionLabel "Alternative identifiers";
+	d2rq:propertyDefinitionComment "Alternative identifiers or symbols that this element is known by.";
+	d2rq:refersToClassMap map:AlternateId;
+	d2rq:join "ObservationElement.id <= ObservationElement_AlternateId.ObservationElement";
+	d2rq:join "ObservationElement_AlternateId.AlternateId => AlternateId.id";
+	.
+map:ObservationElement_label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationElement;
+	d2rq:property vocab:ObservationElement_label;
+	d2rq:propertyDefinitionLabel "label";
+	d2rq:propertyDefinitionComment "User friendly textual representation of this ObservationElement. For example: 'male',     'mouse 3 in cage 7' or 'TRA-2 like protein'. Label allows for human-readable name that is potentially not unique.";
+	d2rq:column "ObservationElement.label";
+	d2rq:datatype xsd:string;
+	.
+map:ObservationElement_investigation a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationElement;
+	d2rq:property vocab:ObservationElement_Investigation;
+	d2rq:propertyDefinitionLabel "Investigation";
+	d2rq:propertyDefinitionComment "Reference to the Study that this data element is part of";
+	d2rq:refersToClassMap map:Investigation;
+	d2rq:join "ObservationElement.Investigation => Investigation.id";
+	.
+map:ObservationElement_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationElement;
+	d2rq:property vocab:ObservationElement_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "ObservationElement.name";
+	d2rq:datatype xsd:string;
+	.
+map:ObservationElement_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationElement;
+	d2rq:property vocab:ObservationElement_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "ObservationElement.id";
+	d2rq:datatype xsd:int;
+	.
+map:ObservationElement_description a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationElement;
+	d2rq:property vocab:ObservationElement_description;
+	d2rq:propertyDefinitionLabel "description";
+	d2rq:propertyDefinitionComment "description field";
+	d2rq:column "ObservationElement.description";
+	d2rq:datatype xsd:text;
+	.
+# Entity ObservationTarget
+map:ObservationTarget a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "ObservationTarget/@@ObservationTarget.id@@";
+	d2rq:class vocab:ObservationTarget;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " An ObservationTarget class defines the subjects of observation. For instance: individual 1 from Investigation x. The ObservationTarget class maps to XGAP:Subject, METABASE:Patient and maps to Page:Abstract_Observation_Target. The name of observationTargets is unique. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for ObservationTarget using primary key
+map:ObservationTarget__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationTarget;
+	d2rq:property rdfs:label;
+	d2rq:pattern "ObservationTarget #@@ObservationTarget.id@@";
+	.
+map:ObservationTarget_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservationTarget;
+	d2rq:property vocab:ObservationTarget_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "ObservationTarget.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity ObservableFeature
+map:ObservableFeature a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "ObservableFeature/@@ObservableFeature.id@@";
+	d2rq:class vocab:ObservableFeature;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "ObservableFeature defines anything that can be observed in a phenotypic Investigation. For instance: Height, Systolic blood pressure, Diastolic blood pressure, and Treatment for hypertension are observable features. The name of ObservableFeature is unique within one Investigation. It is recommended that each ObservableFeature is named according to a well-defined ontology term which can be specified via ontologyReference. Note that in some instances an observableFeature can also be an observationTarget, for example in the case of correlation matrices. The ObservableFeature class maps to XGAP:Trait, METABASE:Question, FuGE:DimensionElement, and PaGE:ObservableFeature. Multi-value features can be grouped by Protocol. For instance: high blood pressure can be inferred from observations for features systolic and diastolic blood pressure. There may be many alternative protocols to measure a feature. See Protocol section. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for ObservableFeature using primary key
+map:ObservableFeature__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservableFeature;
+	d2rq:property rdfs:label;
+	d2rq:pattern "ObservableFeature #@@ObservableFeature.id@@";
+	.
+map:ObservableFeature_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservableFeature;
+	d2rq:property vocab:ObservableFeature_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "ObservableFeature.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Measurement
+map:Measurement a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Measurement/@@Measurement.id@@";
+	d2rq:class vocab:Measurement;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "Generic obserable feature to flexibly define a measurement ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Measurement using primary key
+map:Measurement__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Measurement;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Measurement #@@Measurement.id@@";
+	.
+map:Measurement_unit a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Measurement;
+	d2rq:property vocab:Measurement_unit;
+	d2rq:propertyDefinitionLabel "unit";
+	d2rq:propertyDefinitionComment "(Optional) Reference to the well-defined measurement unit used to observe this feature       (if feature is that concrete). E.g. mmHg";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "Measurement.unit => OntologyTerm.id";
+	.
+map:Measurement_dataType a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Measurement;
+	d2rq:property vocab:Measurement_dataType;
+	d2rq:propertyDefinitionLabel "dataType";
+	d2rq:propertyDefinitionComment "(Optional) Reference to the technical data type. E.g. 'int'";
+	d2rq:column "Measurement.dataType";
+	d2rq:datatype xsd:string;
+	.
+map:Measurement_temporal a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Measurement;
+	d2rq:property vocab:Measurement_temporal;
+	d2rq:propertyDefinitionLabel "temporal";
+	d2rq:propertyDefinitionComment "Whether this feature is time dependent and can have different values when measured       on different times (e.g. weight, temporal=true) or generally only measured once (e.g. birth date,       temporal=false)";
+	d2rq:column "Measurement.temporal";
+	d2rq:datatype xsd:boolean;
+	.
+map:Measurement_categories a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Measurement;
+	d2rq:property vocab:Measurement_categories;
+	d2rq:propertyDefinitionLabel "categories";
+	d2rq:propertyDefinitionComment "Translation of codes into categories if applicable";
+	d2rq:refersToClassMap map:Category;
+	d2rq:join "Measurement.id <= Measurement_categories.Measurement";
+	d2rq:join "Measurement_categories.categories => Category.id";
+	.
+map:Measurement_description a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Measurement;
+	d2rq:property vocab:Measurement_description;
+	d2rq:propertyDefinitionLabel "description";
+	d2rq:propertyDefinitionComment "(Optional) Rudimentary meta data about the observable feature. Use of ontology       terms references to establish unambigious descriptions is recommended";
+	d2rq:column "Measurement.description";
+	d2rq:datatype xsd:text;
+	.
+map:Measurement_targettypeAllowedForRelation a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Measurement;
+	d2rq:property vocab:Measurement_targettypeAllowedForRelation;
+	d2rq:propertyDefinitionLabel "ObservationTarget type allowed for relation";
+	d2rq:propertyDefinitionComment "Subclass of ObservationTarget (Individual, Panel or Location) that      can be linked to (through the 'relation' field in ObservedValue) when using this       Measurement (example: a Measurement 'Species' can only result in ObservedValues       that have relations to Panels)";
+	d2rq:refersToClassMap map:MolgenisEntity;
+	d2rq:join "Measurement.targettypeAllowedForRelation => MolgenisEntity.id";
+	.
+map:Measurement_panelLabelAllowedForRelation a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Measurement;
+	d2rq:property vocab:Measurement_panelLabelAllowedForRelation;
+	d2rq:propertyDefinitionLabel "Panel label allowed for relation";
+	d2rq:propertyDefinitionComment "Label that must have been applied to the Panel that      can be linked to (through the 'relation' field in ObservedValue) when using this       Measurement (example: a Measurement 'Species' can only result      in ObservedValues that have relations to Panels labeled as 'Species')";
+	d2rq:column "Measurement.panelLabelAllowedForRelation";
+	d2rq:datatype xsd:string;
+	.
+map:Measurement_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Measurement;
+	d2rq:property vocab:Measurement_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Measurement.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Category
+map:Category a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Category/@@Category.id@@";
+	d2rq:class vocab:Category;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "Special kind of ObservationElement to define categorical answer codes such as are often used in Questionaires. A list of categories can be attached to an Measurement using Measurement.categories. For example the Measurement 'sex' has {code_string = 1, label=male} and {code_string = 2, label=female}. Categories can be linked to well-defined ontology terms via the ontologyReference. Category extends ObservationElement such that it can be referenced by ObservedValue.value. The Category class maps to METABASE::Category ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Category using primary key
+map:Category__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Category;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Category #@@Category.id@@";
+	.
+map:Category_code_string a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Category;
+	d2rq:property vocab:Category_code_string;
+	d2rq:propertyDefinitionLabel "code_string";
+	d2rq:propertyDefinitionComment "The code used to represent this category. For example: { '1' codes for 'male', '2'-'female'}";
+	d2rq:column "Category.code_string";
+	d2rq:datatype xsd:string;
+	.
+map:Category_description a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Category;
+	d2rq:property vocab:Category_description;
+	d2rq:propertyDefinitionLabel "description";
+	d2rq:propertyDefinitionComment "Description of the code.     Use of ontology terms references to establish unambigious descriptions is     recommended";
+	d2rq:column "Category.description";
+	d2rq:datatype xsd:text;
+	.
+map:Category_isMissing a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Category;
+	d2rq:property vocab:Category_isMissing;
+	d2rq:propertyDefinitionLabel "isMissing";
+	d2rq:propertyDefinitionComment "whether this code should be treated as missing value.";
+	d2rq:column "Category.isMissing";
+	d2rq:datatype xsd:boolean;
+	.
+map:Category_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Category;
+	d2rq:property vocab:Category_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Category.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Individual
+map:Individual a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Individual/@@Individual.id@@";
+	d2rq:class vocab:Individual;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " The Individuals class defines human cases that are used as observation target. The Individual class maps to XGAP:Individual and PaGE:Individual. Note that minimal information like 'sex' can be defined as ObservedValue, and that that basic relationships like 'father' and 'mother' can also be defined via ObservedRelationship, using the 'relation' field. Groups of individuals can be defined via Panel. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Individual using primary key
+map:Individual__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Individual;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Individual #@@Individual.id@@";
+	.
+map:Individual_mother a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Individual;
+	d2rq:property vocab:Individual_Mother;
+	d2rq:propertyDefinitionLabel "Mother";
+	d2rq:propertyDefinitionComment "Refers to the mother of the individual.";
+	d2rq:refersToClassMap map:Individual;
+	d2rq:join "Individual.Mother => Individual.id";
+	.
+map:Individual_father a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Individual;
+	d2rq:property vocab:Individual_Father;
+	d2rq:propertyDefinitionLabel "Father";
+	d2rq:propertyDefinitionComment "Refers to the father of the individual.";
+	d2rq:refersToClassMap map:Individual;
+	d2rq:join "Individual.Father => Individual.id";
+	.
+map:Individual_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Individual;
+	d2rq:property vocab:Individual_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Individual.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Location
+map:Location a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Location/@@Location.id@@";
+	d2rq:class vocab:Location;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "This class defines physical locations such as buildings, departments, rooms, freezers and cages. Use ObservedValues to link locations to eachother, to build a location hierarchy. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Location using primary key
+map:Location__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Location;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Location #@@Location.id@@";
+	.
+map:Location_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Location;
+	d2rq:property vocab:Location_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Location.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Panel
+map:Panel a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Panel/@@Panel.id@@";
+	d2rq:class vocab:Panel;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "The Panel class defines groups of individuals based on cohort design, case/controls, families, etc. For instance: LifeLines cohort, 'middle aged man', 'recombinant mouse inbred Line dba x b6' or 'Smith family'. A Panel can act as a single ObservationTarget. For example: average height (ObservedValue) in the LifeLines cohort (Panel) is 174cm. The Panel class maps to XGAP:Strain and PaGE:Panel classes. In METABASE this is assumed there is one panel per study. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Panel using primary key
+map:Panel__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Panel;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Panel #@@Panel.id@@";
+	.
+map:Panel_individuals a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Panel;
+	d2rq:property vocab:Panel_Individuals;
+	d2rq:propertyDefinitionLabel "Individuals";
+	d2rq:propertyDefinitionComment "The list of individuals in this panel";
+	d2rq:refersToClassMap map:Individual;
+	d2rq:join "Panel.id <= Panel_Individuals.Panel";
+	d2rq:join "Panel_Individuals.Individuals => Individual.id";
+	.
+map:Panel_species a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Panel;
+	d2rq:property vocab:Panel_Species;
+	d2rq:propertyDefinitionLabel "Species";
+	d2rq:propertyDefinitionComment "The species this panel is an instance of/part of/extracted from.";
+	d2rq:refersToClassMap map:Species;
+	d2rq:join "Panel.Species => Species.id";
+	.
+map:Panel_panelType a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Panel;
+	d2rq:property vocab:Panel_PanelType;
+	d2rq:propertyDefinitionLabel "PanelType";
+	d2rq:propertyDefinitionComment "Indicate the type of Panel (example: Natural=wild type, Parental=parents of a cross, F1=First generation of cross, RCC=Recombinant congenic, CSS=chromosome substitution)";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "Panel.PanelType => OntologyTerm.id";
+	.
+map:Panel_founderPanels a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Panel;
+	d2rq:property vocab:Panel_FounderPanels;
+	d2rq:propertyDefinitionLabel "FounderPanels";
+	d2rq:propertyDefinitionComment "The panel(s) that were used to create this panel.";
+	d2rq:refersToClassMap map:Panel;
+	d2rq:join "Panel.id <= Panel_FounderPanels.Panel";
+	d2rq:join "Panel_FounderPanels.FounderPanels => Panel.id";
+	.
+map:Panel_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Panel;
+	d2rq:property vocab:Panel_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Panel.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity ObservedValue
+map:ObservedValue a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "ObservedValue/@@ObservedValue.id@@";
+	d2rq:class vocab:ObservedValue;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " Generic storage of values, relationships and optional ontology mapping of the value/relation. Values can be atomatic observations, e.g., length (feature) of individual 1 (target) = 179cm (value). Values can also be relationship values, e.g., extract (feature) of sample 1 (target) = derived sample (relation). &lt;br/&gt; Discussion: how to model sample pooling in this model? &lt;br/&gt; More Discussion: do we want to have type specific subclasses? No, because you can solve this by casting during querying? ";
+	.	
+# todo: use the xref labels if they are complete
+# label for ObservedValue using primary key
+map:ObservedValue__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property rdfs:label;
+	d2rq:pattern "ObservedValue #@@ObservedValue.id@@";
+	.
+map:ObservedValue_ontologyReference a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_ontologyReference;
+	d2rq:propertyDefinitionLabel "ontologyReference";
+	d2rq:propertyDefinitionComment "(Optional) Reference to the     ontology definition or 'code' for this value (recommended for non-numeric     values such as codes)";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "ObservedValue.ontologyReference => OntologyTerm.id";
+	.
+map:ObservedValue_value a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_value;
+	d2rq:propertyDefinitionLabel "value";
+	d2rq:propertyDefinitionComment "The value observed";
+	d2rq:column "ObservedValue.value";
+	d2rq:datatype xsd:string;
+	.
+map:ObservedValue_relation a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_relation;
+	d2rq:propertyDefinitionLabel "relation";
+	d2rq:propertyDefinitionComment "Reference to other end of the relationship, if any. For example to a 'brother' or from 'sample' to 'derivedSample'.";
+	d2rq:refersToClassMap map:ObservationElement;
+	d2rq:join "ObservedValue.relation => ObservationElement.id";
+	.
+map:ObservedValue_time a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_time;
+	d2rq:propertyDefinitionLabel "time";
+	d2rq:propertyDefinitionComment "(Optional) Time when the value was observed. For example in time series or if feature is time-dependent like 'age'";
+	d2rq:column "ObservedValue.time";
+	d2rq:datatype xsd:dateTime;
+	.
+map:ObservedValue_endtime a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_endtime;
+	d2rq:propertyDefinitionLabel "endtime";
+	d2rq:propertyDefinitionComment "(Optional) Time when the value's validity ended";
+	d2rq:column "ObservedValue.endtime";
+	d2rq:datatype xsd:dateTime;
+	.
+map:ObservedValue_investigation a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_Investigation;
+	d2rq:propertyDefinitionLabel "Investigation";
+	d2rq:propertyDefinitionComment "Investigation";
+	d2rq:refersToClassMap map:Investigation;
+	d2rq:join "ObservedValue.Investigation => Investigation.id";
+	.
+map:ObservedValue_protocolApplication a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_protocolApplication;
+	d2rq:propertyDefinitionLabel "protocolApplication";
+	d2rq:propertyDefinitionComment "Reference to the protocol application that was used to produce this observation. For example a particular patient visit or the application of a microarray or the calculation of a QTL model";
+	d2rq:refersToClassMap map:ProtocolApplication;
+	d2rq:join "ObservedValue.protocolApplication => ProtocolApplication.id";
+	.
+map:ObservedValue_feature a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_Feature;
+	d2rq:propertyDefinitionLabel "Feature";
+	d2rq:propertyDefinitionComment "References the ObservableFeature that this observation was made on. For example 'probe123'. Can be ommited for 1D data (i.e., a data list).";
+	d2rq:refersToClassMap map:ObservationElement;
+	d2rq:join "ObservedValue.Feature => ObservationElement.id";
+	.
+map:ObservedValue_target a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_Target;
+	d2rq:propertyDefinitionLabel "Target";
+	d2rq:propertyDefinitionComment "References the ObservationTarget that this feature was made on. For example 'individual1'. In a correlation matrix this could be also 'probe123'.";
+	d2rq:refersToClassMap map:ObservationElement;
+	d2rq:join "ObservedValue.Target => ObservationElement.id";
+	.
+map:ObservedValue_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ObservedValue;
+	d2rq:property vocab:ObservedValue_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "ObservedValue.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Investigation
+map:Investigation a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Investigation/@@Investigation.id@@";
+	d2rq:class vocab:Investigation;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "Investigation defines self-contained units of study. For example: Framingham study. Optionally a description and an accession to a data source can be provided. Each Investigation has a unique name and a group of subjects of observation (ObservableTarget), traits of observation (ObservableFeature), results (in ObservedValues), and optionally actions (Protocols, ProtoclApplications). 'Invetigation' maps to standard XGAP/FuGE Investigation, MAGE-TAB Experiment and METABASE:Study. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Investigation using primary key
+map:Investigation__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Investigation;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Investigation #@@Investigation.id@@";
+	.
+map:Investigation_startDate a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Investigation;
+	d2rq:property vocab:Investigation_startDate;
+	d2rq:propertyDefinitionLabel "startDate";
+	d2rq:propertyDefinitionComment "The start point of the study.";
+	d2rq:column "Investigation.startDate";
+	d2rq:datatype xsd:dateTime;
+	.
+map:Investigation_endDate a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Investigation;
+	d2rq:property vocab:Investigation_endDate;
+	d2rq:propertyDefinitionLabel "endDate";
+	d2rq:propertyDefinitionComment "The end point of the study.";
+	d2rq:column "Investigation.endDate";
+	d2rq:datatype xsd:dateTime;
+	.
+map:Investigation_contacts a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Investigation;
+	d2rq:property vocab:Investigation_contacts;
+	d2rq:propertyDefinitionLabel "contacts";
+	d2rq:propertyDefinitionComment "Contact persons for this study";
+	d2rq:refersToClassMap map:Person;
+	d2rq:join "Investigation.id <= Investigation_contacts.Investigation";
+	d2rq:join "Investigation_contacts.contacts => Person.id";
+	.
+map:Investigation_accession a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Investigation;
+	d2rq:property vocab:Investigation_accession;
+	d2rq:propertyDefinitionLabel "accession";
+	d2rq:propertyDefinitionComment "(Optional) URI or accession number to indicate source of Study. E.g. arrayexpress:M-EXP-2345";
+	d2rq:column "Investigation.accession";
+	d2rq:datatype xsd:url;
+	.
+map:Investigation_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Investigation;
+	d2rq:property vocab:Investigation_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "Investigation.name";
+	d2rq:datatype xsd:string;
+	.
+map:Investigation_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Investigation;
+	d2rq:property vocab:Investigation_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Investigation.id";
+	d2rq:datatype xsd:int;
+	.
+map:Investigation_description a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Investigation;
+	d2rq:property vocab:Investigation_description;
+	d2rq:propertyDefinitionLabel "description";
+	d2rq:propertyDefinitionComment "description field";
+	d2rq:column "Investigation.description";
+	d2rq:datatype xsd:text;
+	.
+# Entity OntologyTerm
+map:OntologyTerm a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "OntologyTerm/@@OntologyTerm.id@@";
+	d2rq:class vocab:OntologyTerm;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " OntologyTerm defines a single entry (term) from an ontology or a controlled vocabulary (defined by Ontology). The name is the ontology term which is unique within an ontology source, such as [examples here]. Other data entities can reference to this OntologyTerm to harmonize naming of concepts. Each term should have a local, unique label within the Investigation. If no suitable ontology term exists then one can define new terms locally (in which case there is no formal accession for the term limiting its use for cross-Investigation queries). In those cases the local name should be repeated in both term and termAccession. Maps to FuGE::OntologyIndividual; in MAGE-TAB there is no separate entity to model terms. &lt;br/&gt; Optionally a local controlled vocabulary or ontology can be defined, for example to represent 'Codelists' often used in questionaires. Note: this is not a InvestigationElement because of the additional xref_label and unique constraint.This class defines a single entry from an ontology or a controlled vocabulary. &lt;br/&gt; If it is a simple controlled vocabulary, there may be no formal accession for the term. In these cases the local name should be repeated in both term and termAccession. If the term has a value, the OntologyTerm will have a single DataProperty whose value was the value for the property. For instance, for an OntologyIndividual based on the MO ontology the attributes might be: The term would be what is usually called the local name in the Ontology, for instance 'Age'; The termAccession could be 'http://mged.sourceforge.net/ontologies/MGEDOntology.owl#Age' or a an arbitrary accession if one exists; The identifier is a unique identifier for individuals in the scope of the FuGE instance; The inherited name attribute should not be used; The ontologyURI of OntologySource could be 'http://mged.sourceforge.net/ontologies/MGEDOntology.owl&quot;. The OntologyTerm subclasses are instances of Ontology classes and properties, not the actual terms themselves. An OntologyIndividual, if based on an existing Ontology, can be considered a statement that can be validated against the referenced ontology. The subclasses and their associations are based on the Ontology Definition Model, ad/2005-04-13, submitted to the OMG as a response to RFP ad/2003-03-40, Copyright 2005 DSTC Pty Ltd. Copyright 2005 IBM Copyright 2005 Sandpiper Software, Inc under the standard OMG license terms. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for OntologyTerm using primary key
+map:OntologyTerm__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:OntologyTerm;
+	d2rq:property rdfs:label;
+	d2rq:pattern "OntologyTerm #@@OntologyTerm.id@@";
+	.
+map:OntologyTerm___Type a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:OntologyTerm;
+	d2rq:property vocab:OntologyTerm___Type;
+	d2rq:propertyDefinitionLabel "__Type";
+	d2rq:propertyDefinitionComment "Subtypes have to be set to allow searching";
+	d2rq:column "OntologyTerm.__Type";
+	d2rq:datatype xsd:string;
+	.
+map:OntologyTerm_ontology a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:OntologyTerm;
+	d2rq:property vocab:OntologyTerm_ontology;
+	d2rq:propertyDefinitionLabel "ontology";
+	d2rq:propertyDefinitionComment "(Optional) The source ontology or controlled vocabulary list that ontology terms have been obtained from.";
+	d2rq:refersToClassMap map:Ontology;
+	d2rq:join "OntologyTerm.ontology => Ontology.id";
+	.
+map:OntologyTerm_termAccession a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:OntologyTerm;
+	d2rq:property vocab:OntologyTerm_termAccession;
+	d2rq:propertyDefinitionLabel "termAccession";
+	d2rq:propertyDefinitionComment "(Optional) The accession number assigned to the ontology term in its source ontology. If empty it is assumed to be a locally defined term.";
+	d2rq:column "OntologyTerm.termAccession";
+	d2rq:datatype xsd:string;
+	.
+map:OntologyTerm_definition a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:OntologyTerm;
+	d2rq:property vocab:OntologyTerm_definition;
+	d2rq:propertyDefinitionLabel "definition";
+	d2rq:propertyDefinitionComment "(Optional) The definition of the term.";
+	d2rq:column "OntologyTerm.definition";
+	d2rq:datatype xsd:string;
+	.
+map:OntologyTerm_termPath a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:OntologyTerm;
+	d2rq:property vocab:OntologyTerm_termPath;
+	d2rq:propertyDefinitionLabel "termPath";
+	d2rq:propertyDefinitionComment "EXTENSION. The Ontology Lookup Service path that contains this term.";
+	d2rq:column "OntologyTerm.termPath";
+	d2rq:datatype xsd:string;
+	.
+map:OntologyTerm_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:OntologyTerm;
+	d2rq:property vocab:OntologyTerm_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "OntologyTerm.name";
+	d2rq:datatype xsd:string;
+	.
+map:OntologyTerm_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:OntologyTerm;
+	d2rq:property vocab:OntologyTerm_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "OntologyTerm.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Ontology
+map:Ontology a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Ontology/@@Ontology.id@@";
+	d2rq:class vocab:Ontology;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " Ontology defines a reference to a an ontology or controlled vocabulary from which well-defined and stable (ontology) terms can be obtained. Each Ontology should have a unique name, for instance: Gene Ontology, Mammalian Phenotype, Human Phenotype Ontology, Unified Medical Language System, Medical Subject Headings, etc. Also a abbreviation is required, for instance: GO, MP, HPO, UMLS, MeSH, etc. Use of existing ontologies/vocabularies is recommended to harmonize phenotypic feature and value descriptions. But one can also create a 'local' Ontology. The Ontology class maps to FuGE::Ontology, MAGE-TAB::TermSourceREF. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Ontology using primary key
+map:Ontology__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Ontology;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Ontology #@@Ontology.id@@";
+	.
+map:Ontology_ontologyAccession a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Ontology;
+	d2rq:property vocab:Ontology_ontologyAccession;
+	d2rq:propertyDefinitionLabel "ontologyAccession";
+	d2rq:propertyDefinitionComment "A identifier that uniquely identifies the ontology (typically an acronym). E.g. GO, MeSH, HPO.";
+	d2rq:column "Ontology.ontologyAccession";
+	d2rq:datatype xsd:string;
+	.
+map:Ontology_ontologyURI a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Ontology;
+	d2rq:property vocab:Ontology_ontologyURI;
+	d2rq:propertyDefinitionLabel "ontologyURI";
+	d2rq:propertyDefinitionComment "(Optional) A URI that references the location of the ontology.";
+	d2rq:column "Ontology.ontologyURI";
+	d2rq:datatype xsd:url;
+	.
+map:Ontology_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Ontology;
+	d2rq:property vocab:Ontology_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "Ontology.name";
+	d2rq:datatype xsd:string;
+	.
+map:Ontology_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Ontology;
+	d2rq:property vocab:Ontology_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Ontology.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity MolgenisFile
+map:MolgenisFile a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "MolgenisFile/@@MolgenisFile.id@@";
+	d2rq:class vocab:MolgenisFile;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " Helper entity to deal with files. Has a decorator to regulate storage and coupling to an Entity. Do not make abstract because of subtyping. This means the names of the subclasses will be used to distinguish MolgenisFiles and place them in the correct folders. &lt;br/&gt; MS: make it use the &amp;lt;field type=&quot;file&quot; property under the hood. &lt;br/&gt; MS: where do the mimetypes go? I mean, I don't see the added value now. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for MolgenisFile using primary key
+map:MolgenisFile__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:MolgenisFile;
+	d2rq:property rdfs:label;
+	d2rq:pattern "MolgenisFile #@@MolgenisFile.id@@";
+	.
+map:MolgenisFile___Type a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:MolgenisFile;
+	d2rq:property vocab:MolgenisFile___Type;
+	d2rq:propertyDefinitionLabel "__Type";
+	d2rq:propertyDefinitionComment "Subtypes have to be set to allow searching";
+	d2rq:column "MolgenisFile.__Type";
+	d2rq:datatype xsd:string;
+	.
+map:MolgenisFile_extension a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:MolgenisFile;
+	d2rq:property vocab:MolgenisFile_Extension;
+	d2rq:propertyDefinitionLabel "Extension";
+	d2rq:propertyDefinitionComment "The file extension. This will be mapped to MIME type at runtime. For example, a type 'png' will be served out as 'image/png'.";
+	d2rq:column "MolgenisFile.Extension";
+	d2rq:datatype xsd:string;
+	.
+map:MolgenisFile_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:MolgenisFile;
+	d2rq:property vocab:MolgenisFile_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "MolgenisFile.name";
+	d2rq:datatype xsd:string;
+	.
+map:MolgenisFile_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:MolgenisFile;
+	d2rq:property vocab:MolgenisFile_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "MolgenisFile.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity RuntimeProperty
+map:RuntimeProperty a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "RuntimeProperty/@@RuntimeProperty.id@@";
+	d2rq:class vocab:RuntimeProperty;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "";
+	.	
+# todo: use the xref labels if they are complete
+# label for RuntimeProperty using primary key
+map:RuntimeProperty__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:RuntimeProperty;
+	d2rq:property rdfs:label;
+	d2rq:pattern "RuntimeProperty #@@RuntimeProperty.id@@";
+	.
+map:RuntimeProperty_value a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:RuntimeProperty;
+	d2rq:property vocab:RuntimeProperty_Value;
+	d2rq:propertyDefinitionLabel "Value";
+	d2rq:propertyDefinitionComment "Value";
+	d2rq:column "RuntimeProperty.Value";
+	d2rq:datatype xsd:string;
+	.
+map:RuntimeProperty_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:RuntimeProperty;
+	d2rq:property vocab:RuntimeProperty_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "RuntimeProperty.name";
+	d2rq:datatype xsd:string;
+	.
+map:RuntimeProperty_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:RuntimeProperty;
+	d2rq:property vocab:RuntimeProperty_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "RuntimeProperty.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Publication
+map:Publication a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Publication/@@Publication.id@@";
+	d2rq:class vocab:Publication;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " Publication is part of the Investigation package and is used to represent information about one or more publications related to an Investigation. The publication need not only be primary publication for an Investigation but may also represent other related information- though this use is less common. Publications have attributes of publications Authors and also DOI and Pubmed identifiers (when these are available). These are represented as OntologyTerms as in the MAGE-TAB model all 'xrefs' (cross references) for ontologies and accession numbers are handled generically. An example of a publication is available in an IDF file from ArrayExpress is experiment E-MTAB-506 &lt;a href=&quot;ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/TABM/E-TABM-506/E-TABM-506.idf.txt&quot;&gt;ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/TABM/E-TABM-506/E-TABM-506.idf.txt &lt;/a&gt; . &lt;br/&gt; The FuGE equivalent to Publication is FuGE::Bibliographic Reference. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Publication using primary key
+map:Publication__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Publication #@@Publication.id@@";
+	.
+map:Publication_pubmedID a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property vocab:Publication_PubmedID;
+	d2rq:propertyDefinitionLabel "Pubmed ID";
+	d2rq:propertyDefinitionComment "Pubmed ID";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "Publication.PubmedID => OntologyTerm.id";
+	.
+map:Publication_dOI a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property vocab:Publication_DOI;
+	d2rq:propertyDefinitionLabel "Publication DOI";
+	d2rq:propertyDefinitionComment "Publication DOI";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "Publication.DOI => OntologyTerm.id";
+	.
+map:Publication_authorList a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property vocab:Publication_authorList;
+	d2rq:propertyDefinitionLabel "authorList";
+	d2rq:propertyDefinitionComment "The names of the authors of the publication";
+	d2rq:column "Publication.authorList";
+	d2rq:datatype xsd:text;
+	.
+map:Publication_title a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property vocab:Publication_Title;
+	d2rq:propertyDefinitionLabel "Publication Title";
+	d2rq:propertyDefinitionComment "The title of the Publication";
+	d2rq:column "Publication.Title";
+	d2rq:datatype xsd:string;
+	.
+map:Publication_status a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property vocab:Publication_Status;
+	d2rq:propertyDefinitionLabel "Publication Status";
+	d2rq:propertyDefinitionComment "The status of the Publication";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "Publication.Status => OntologyTerm.id";
+	.
+map:Publication_year a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property vocab:Publication_Year;
+	d2rq:propertyDefinitionLabel "Publication Year";
+	d2rq:propertyDefinitionComment "The year of the Publication";
+	d2rq:column "Publication.Year";
+	d2rq:datatype xsd:string;
+	.
+map:Publication_journal a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property vocab:Publication_Journal;
+	d2rq:propertyDefinitionLabel "Journal Title";
+	d2rq:propertyDefinitionComment "The title of the Journal";
+	d2rq:column "Publication.Journal";
+	d2rq:datatype xsd:string;
+	.
+map:Publication_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property vocab:Publication_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "Publication.name";
+	d2rq:datatype xsd:string;
+	.
+map:Publication_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Publication;
+	d2rq:property vocab:Publication_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Publication.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity UseCase
+map:UseCase a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "UseCase/@@UseCase.UseCaseId@@";
+	d2rq:class vocab:UseCase;
+	d2rq:classDefinitionLabel "Use Cases";
+	d2rq:classDefinitionComment " All the use cases send to the server are stored in this entity . ";
+	.	
+# todo: use the xref labels if they are complete
+# label for UseCase using primary key
+map:UseCase__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:UseCase;
+	d2rq:property rdfs:label;
+	d2rq:pattern "UseCase #@@UseCase.UseCaseId@@";
+	.
+map:UseCase_useCaseId a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:UseCase;
+	d2rq:property vocab:UseCase_UseCaseId;
+	d2rq:propertyDefinitionLabel "UseCaseId";
+	d2rq:propertyDefinitionComment "UseCaseId";
+	d2rq:column "UseCase.UseCaseId";
+	d2rq:datatype xsd:int;
+	.
+map:UseCase_useCaseName a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:UseCase;
+	d2rq:property vocab:UseCase_UseCaseName;
+	d2rq:propertyDefinitionLabel "UseCaseName";
+	d2rq:propertyDefinitionComment "UseCaseName";
+	d2rq:column "UseCase.UseCaseName";
+	d2rq:datatype xsd:string;
+	.
+map:UseCase_searchType a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:UseCase;
+	d2rq:property vocab:UseCase_SearchType;
+	d2rq:propertyDefinitionLabel "SearchType";
+	d2rq:propertyDefinitionComment "SearchType";
+	d2rq:column "UseCase.SearchType";
+	d2rq:datatype xsd:string;
+	.
+# Entity Protocol
+map:Protocol a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Protocol/@@Protocol.id@@";
+	d2rq:class vocab:Protocol;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " The Protocol class defines parameterizable descriptions of methods; each protocol has a unique name within an Study. Each ProtocolApplication can define the ObservableFeatures it can observe. Also the protocol parameters can be modeled using ObservableFeatures (Users are expected to 'tag' the observeable feature by setting ObserveableFeature type as 'ProtocolParameter'. Examples of protocols are: SOP for blood pressure measurement used by UK biobank, or 'R/qtl' as protocol for statistical analysis. Protocol is a high level object that represents the details of protocols used during the investigation. The uses of Protocols to process BioMaterials and Data are referenced by ProtocolApplication (in the SDRF part of the format). Protocol has an association to OntologyTerm to represent the type of protocol. Protocols are associated with Hardware, Software and Parameters used in the Protocol. An example from ArrayExpress is E-MTAB-506 &lt;a href=&quot;ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/TABM/E-TABM-506/E-TABM-506.idf.txt&quot;&gt; ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/TABM/E-TABM-506/E-TABM-506.idf.txt. &lt;/a&gt; &lt;br/&gt; The FUGE equivalent to Protocol is FuGE::Protocol. &lt;br/&gt; The Protocol class maps to FuGE/XGAP/MageTab Protocol, but in contrast to FuGE it is not required to extend protocol before use. The Protocol class also maps to METABASE:Form (note that components are solved during METABASE:Visit which can be nested). Has no equivalent in PaGE. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Protocol using primary key
+map:Protocol__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Protocol #@@Protocol.id@@";
+	.
+map:Protocol_ontologyReference a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_ontologyReference;
+	d2rq:propertyDefinitionLabel "ontologyReference";
+	d2rq:propertyDefinitionComment "(Optional) Reference to the formal ontology definition for this element, e.g. 'Animal' or 'GWAS protocol'";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "Protocol.id <= Protocol_ontologyReference.InvestigationElement";
+	d2rq:join "Protocol_ontologyReference.ontologyReference => OntologyTerm.id";
+	.
+map:Protocol___Type a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol___Type;
+	d2rq:propertyDefinitionLabel "__Type";
+	d2rq:propertyDefinitionComment "Subtypes have to be set to allow searching";
+	d2rq:column "Protocol.__Type";
+	d2rq:datatype xsd:string;
+	.
+map:Protocol_protocolType a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_ProtocolType;
+	d2rq:propertyDefinitionLabel "ProtocolType";
+	d2rq:propertyDefinitionComment "annotation of the protocol to a well-defined ontological class.";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "Protocol.ProtocolType => OntologyTerm.id";
+	.
+map:Protocol_description a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_description;
+	d2rq:propertyDefinitionLabel "description";
+	d2rq:propertyDefinitionComment "Description, or reference to a description, of the protocol";
+	d2rq:column "Protocol.description";
+	d2rq:datatype xsd:text;
+	.
+map:Protocol_features a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_Features;
+	d2rq:propertyDefinitionLabel "Features";
+	d2rq:propertyDefinitionComment "The features that can be observed using this protocol. For example 'length' or 'rs123534' or 'probe123'. Also protocol parameters are considered observable features as they are important to the interpretation of the observed values.";
+	d2rq:refersToClassMap map:ObservableFeature;
+	d2rq:join "Protocol.id <= Protocol_Features.Protocol";
+	d2rq:join "Protocol_Features.Features => ObservableFeature.id";
+	.
+map:Protocol_targetFilter a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_TargetFilter;
+	d2rq:propertyDefinitionLabel "TargetFilter";
+	d2rq:propertyDefinitionComment "Expression that filters the InvestigationElements that can be targetted using this protocol.     This helps the user to only select from targets that matter when setting observedvalues. For example: type='individual' AND species = 'human'";
+	d2rq:column "Protocol.TargetFilter";
+	d2rq:datatype xsd:string;
+	.
+map:Protocol_contact a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_Contact;
+	d2rq:propertyDefinitionLabel "Contact";
+	d2rq:propertyDefinitionComment "TODO Check if there can be multiple contacts.";
+	d2rq:refersToClassMap map:Person;
+	d2rq:join "Protocol.Contact => Person.id";
+	.
+map:Protocol_subprotocols a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_subprotocols;
+	d2rq:propertyDefinitionLabel "subprotocols";
+	d2rq:propertyDefinitionComment "Subprotocols of this protocol";
+	d2rq:refersToClassMap map:Protocol;
+	d2rq:join "Protocol.id <= Protocol_subprotocols.Protocol";
+	d2rq:join "Protocol_subprotocols.subprotocols => Protocol.id";
+	.
+map:Protocol_investigation a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_Investigation;
+	d2rq:propertyDefinitionLabel "Investigation";
+	d2rq:propertyDefinitionComment "Reference to the Study that this data element is part of";
+	d2rq:refersToClassMap map:Investigation;
+	d2rq:join "Protocol.Investigation => Investigation.id";
+	.
+map:Protocol_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "Protocol.name";
+	d2rq:datatype xsd:string;
+	.
+map:Protocol_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Protocol;
+	d2rq:property vocab:Protocol_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Protocol.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity ProtocolApplication
+map:ProtocolApplication a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "ProtocolApplication/@@ProtocolApplication.id@@";
+	d2rq:class vocab:ProtocolApplication;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " A ProtocolApplication class defines the actual action of observation by refering to a protocol and optional ParameterValues. The name field can be used to label applications with a human understandeable tag. For example: the action of blood pressure measurement on 1000 individuals, using a particular protocol, resulting in 1000 associated observed values. If desired, protocols can be shared between Studys; in those cases one should simply refer to a protocol in another Study. &lt;br/&gt; ProtocolApplications are used in MAGE-TAB format to reference to protocols used, with optionally use of certain protocol parameter values. For example, a Source may be transformed into a Labeled Extract by the subsequent application of a Extraction and Labeling protocol. ProtocolApplication is associated with and Edge that links input/output, e.g. Source to Labeled Extract. The order of the application of protocols can be set in order to be able to reconstruct the left-to-right order of protocol references in MAGE-TAB format. The FuGE equivalent to ProtocolApplication is FuGE:ProtocolApplication, however input/output is modeled using Edge. &lt;br/&gt; The ProtocolApplication class maps to FuGE/XGAP ProtocolApplication, but in FuGE ProtocolApplications can take Material or Data (or both) as input and produce Material or Data (or both) as output. Similar to PaGE.ObservationMethod. Maps to METABASE:Visit (also note that METABASE:PlannedVisit allows for planning of protocol applications; this is outside scope for this model?). ";
+	.	
+# todo: use the xref labels if they are complete
+# label for ProtocolApplication using primary key
+map:ProtocolApplication__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolApplication;
+	d2rq:property rdfs:label;
+	d2rq:pattern "ProtocolApplication #@@ProtocolApplication.id@@";
+	.
+map:ProtocolApplication_ontologyReference a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolApplication;
+	d2rq:property vocab:ProtocolApplication_ontologyReference;
+	d2rq:propertyDefinitionLabel "ontologyReference";
+	d2rq:propertyDefinitionComment "(Optional) Reference to the formal ontology definition for this element, e.g. 'Animal' or 'GWAS protocol'";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "ProtocolApplication.id <= ProtocolApplication_ontol11768.InvestigationElement";
+	d2rq:join "ProtocolApplication_ontol11768.ontologyReference => OntologyTerm.id";
+	.
+map:ProtocolApplication_time a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolApplication;
+	d2rq:property vocab:ProtocolApplication_time;
+	d2rq:propertyDefinitionLabel "time";
+	d2rq:propertyDefinitionComment "time when the protocol was applied.";
+	d2rq:column "ProtocolApplication.time";
+	d2rq:datatype xsd:dateTime;
+	.
+map:ProtocolApplication_protocol a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolApplication;
+	d2rq:property vocab:ProtocolApplication_protocol;
+	d2rq:propertyDefinitionLabel "protocol";
+	d2rq:propertyDefinitionComment "Reference to the protocol that is being used.";
+	d2rq:refersToClassMap map:Protocol;
+	d2rq:join "ProtocolApplication.protocol => Protocol.id";
+	.
+map:ProtocolApplication_performer a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolApplication;
+	d2rq:property vocab:ProtocolApplication_Performer;
+	d2rq:propertyDefinitionLabel "Performer";
+	d2rq:propertyDefinitionComment "Performer";
+	d2rq:refersToClassMap map:Person;
+	d2rq:join "ProtocolApplication.id <= ProtocolApplication_Performer.ProtocolApplication";
+	d2rq:join "ProtocolApplication_Performer.Performer => Person.id";
+	.
+map:ProtocolApplication_investigation a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolApplication;
+	d2rq:property vocab:ProtocolApplication_Investigation;
+	d2rq:propertyDefinitionLabel "Investigation";
+	d2rq:propertyDefinitionComment "Reference to the Study that this data element is part of";
+	d2rq:refersToClassMap map:Investigation;
+	d2rq:join "ProtocolApplication.Investigation => Investigation.id";
+	.
+map:ProtocolApplication_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolApplication;
+	d2rq:property vocab:ProtocolApplication_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "ProtocolApplication.name";
+	d2rq:datatype xsd:string;
+	.
+map:ProtocolApplication_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolApplication;
+	d2rq:property vocab:ProtocolApplication_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "ProtocolApplication.id";
+	d2rq:datatype xsd:int;
+	.
+map:ProtocolApplication_description a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolApplication;
+	d2rq:property vocab:ProtocolApplication_description;
+	d2rq:propertyDefinitionLabel "description";
+	d2rq:propertyDefinitionComment "description field";
+	d2rq:column "ProtocolApplication.description";
+	d2rq:datatype xsd:text;
+	.
+# Entity ProtocolDocument
+map:ProtocolDocument a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "ProtocolDocument/@@ProtocolDocument.id@@";
+	d2rq:class vocab:ProtocolDocument;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "";
+	.	
+# todo: use the xref labels if they are complete
+# label for ProtocolDocument using primary key
+map:ProtocolDocument__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolDocument;
+	d2rq:property rdfs:label;
+	d2rq:pattern "ProtocolDocument #@@ProtocolDocument.id@@";
+	.
+map:ProtocolDocument_protocol a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolDocument;
+	d2rq:property vocab:ProtocolDocument_protocol;
+	d2rq:propertyDefinitionLabel "protocol";
+	d2rq:propertyDefinitionComment "protocol";
+	d2rq:refersToClassMap map:Protocol;
+	d2rq:join "ProtocolDocument.protocol => Protocol.id";
+	.
+map:ProtocolDocument_document a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolDocument;
+	d2rq:property vocab:ProtocolDocument_document;
+	d2rq:propertyDefinitionLabel "document";
+	d2rq:propertyDefinitionComment "document";
+	d2rq:column "ProtocolDocument.document";
+	d2rq:datatype xsd:url;
+	.
+map:ProtocolDocument_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:ProtocolDocument;
+	d2rq:property vocab:ProtocolDocument_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "ProtocolDocument.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Workflow
+map:Workflow a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Workflow/@@Workflow.id@@";
+	d2rq:class vocab:Workflow;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "A workflow is a plan to execute a series of subprotocols in a particular order. Each workflow elements is another protocol as refered to via WorkflowElement. Because Workflow extends Protocol, workflows can be nested just as any other protocol. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Workflow using primary key
+map:Workflow__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Workflow;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Workflow #@@Workflow.id@@";
+	.
+map:Workflow_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Workflow;
+	d2rq:property vocab:Workflow_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Workflow.id";
+	d2rq:datatype xsd:int;
+	.
+map:Workflow_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Workflow;
+	d2rq:property vocab:Workflow_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "Workflow.name";
+	d2rq:datatype xsd:string;
+	.
+# Entity WorkflowElement
+map:WorkflowElement a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "WorkflowElement/@@WorkflowElement.id@@";
+	d2rq:class vocab:WorkflowElement;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "Elements of a workflow are references to protocols. The whole workflow is a directed graph with each element pointing to the previousSteps that the current workflow element depends on. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for WorkflowElement using primary key
+map:WorkflowElement__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElement;
+	d2rq:property rdfs:label;
+	d2rq:pattern "WorkflowElement #@@WorkflowElement.id@@";
+	.
+map:WorkflowElement_workflow a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElement;
+	d2rq:property vocab:WorkflowElement_Workflow;
+	d2rq:propertyDefinitionLabel "Workflow";
+	d2rq:propertyDefinitionComment "Workflow this element is part of";
+	d2rq:refersToClassMap map:Workflow;
+	d2rq:join "WorkflowElement.Workflow => Workflow.id";
+	.
+map:WorkflowElement_protocol a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElement;
+	d2rq:property vocab:WorkflowElement_protocol;
+	d2rq:propertyDefinitionLabel "protocol";
+	d2rq:propertyDefinitionComment "Protocol to be used at this workflow step";
+	d2rq:refersToClassMap map:Protocol;
+	d2rq:join "WorkflowElement.protocol => Protocol.id";
+	.
+map:WorkflowElement_previousSteps a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElement;
+	d2rq:property vocab:WorkflowElement_PreviousSteps;
+	d2rq:propertyDefinitionLabel "PreviousSteps";
+	d2rq:propertyDefinitionComment "Previous steps that need to be done before this protocol can be executed.";
+	d2rq:refersToClassMap map:WorkflowElement;
+	d2rq:join "WorkflowElement.id <= WorkflowElement_PreviousSteps.WorkflowElement";
+	d2rq:join "WorkflowElement_PreviousSteps.PreviousSteps => WorkflowElement.id";
+	.
+map:WorkflowElement_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElement;
+	d2rq:property vocab:WorkflowElement_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "human-readable name.";
+	d2rq:column "WorkflowElement.name";
+	d2rq:datatype xsd:string;
+	.
+map:WorkflowElement_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElement;
+	d2rq:property vocab:WorkflowElement_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "WorkflowElement.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity WorkflowElementParameter
+map:WorkflowElementParameter a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "WorkflowElementParameter/@@WorkflowElementParameter.id@@";
+	d2rq:class vocab:WorkflowElementParameter;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment "Element parameters are the way to link workflow elements together. It allows override of the parameters from the previous step. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for WorkflowElementParameter using primary key
+map:WorkflowElementParameter__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElementParameter;
+	d2rq:property rdfs:label;
+	d2rq:pattern "WorkflowElementParameter #@@WorkflowElementParameter.id@@";
+	.
+map:WorkflowElementParameter_workflowElement a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElementParameter;
+	d2rq:property vocab:WorkflowElementParameter_WorkflowElement;
+	d2rq:propertyDefinitionLabel "WorkflowElement";
+	d2rq:propertyDefinitionComment "To attach a parameter to a WorkflowElement";
+	d2rq:refersToClassMap map:WorkflowElement;
+	d2rq:join "WorkflowElementParameter.WorkflowElement => WorkflowElement.id";
+	.
+map:WorkflowElementParameter_parameter a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElementParameter;
+	d2rq:property vocab:WorkflowElementParameter_Parameter;
+	d2rq:propertyDefinitionLabel "Parameter";
+	d2rq:propertyDefinitionComment "Parameter definition.";
+	d2rq:refersToClassMap map:ObservableFeature;
+	d2rq:join "WorkflowElementParameter.Parameter => ObservableFeature.id";
+	.
+map:WorkflowElementParameter_value a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElementParameter;
+	d2rq:property vocab:WorkflowElementParameter_Value;
+	d2rq:propertyDefinitionLabel "Value";
+	d2rq:propertyDefinitionComment "Value of this parameter. Can be a template of form ${other} refering to previous values in context.";
+	d2rq:column "WorkflowElementParameter.Value";
+	d2rq:datatype xsd:string;
+	.
+map:WorkflowElementParameter_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:WorkflowElementParameter;
+	d2rq:property vocab:WorkflowElementParameter_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "WorkflowElementParameter.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Person
+map:Person a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Person/@@Person.id@@";
+	d2rq:class vocab:Person;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " Person represents one or more people involved with an Investigation. This may include authors on a paper, lab personnel or PIs. Person has last name, firstname, mid initial, address, contact and email. A Person role is included to represent how a Person is involved with an investigation. For submission to repository purposes an allowed value is 'submitter' and the term is present in the MGED Ontology, an alternative use could represent job title. An Example from ArrayExpress is E-MTAB-506 &lt;a href=&quot;ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/TABM/E-TABM-506/E-TABM-506.idf.txt&quot;&gt; ftp://ftp.ebi.ac.uk/pub/databases/microarray/data/experiment/TABM/E-TABM-506/E-TABM-506.idf.txt. &lt;/a&gt; . &lt;br/&gt; The FUGE equivalent to Person is FuGE::Person. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Person using primary key
+map:Person__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Person #@@Person.id@@";
+	.
+map:Person_firstName a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_FirstName;
+	d2rq:propertyDefinitionLabel "First Name";
+	d2rq:propertyDefinitionComment "First Name";
+	d2rq:column "Person.FirstName";
+	d2rq:datatype xsd:string;
+	.
+map:Person_midInitials a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_MidInitials;
+	d2rq:propertyDefinitionLabel "Mid Initials";
+	d2rq:propertyDefinitionComment "Mid Initials";
+	d2rq:column "Person.MidInitials";
+	d2rq:datatype xsd:string;
+	.
+map:Person_lastName a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_LastName;
+	d2rq:propertyDefinitionLabel "Last Name";
+	d2rq:propertyDefinitionComment "Last Name";
+	d2rq:column "Person.LastName";
+	d2rq:datatype xsd:string;
+	.
+map:Person_title a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_Title;
+	d2rq:propertyDefinitionLabel "Title";
+	d2rq:propertyDefinitionComment "An academic title, e.g. Prof.dr, PhD";
+	d2rq:column "Person.Title";
+	d2rq:datatype xsd:string;
+	.
+map:Person_affiliation a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_Affiliation;
+	d2rq:propertyDefinitionLabel "Affiliation";
+	d2rq:propertyDefinitionComment "Affiliation";
+	d2rq:refersToClassMap map:Institute;
+	d2rq:join "Person.Affiliation => Institute.id";
+	.
+map:Person_department a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_Department;
+	d2rq:propertyDefinitionLabel "Department";
+	d2rq:propertyDefinitionComment "Added from the old definition of MolgenisUser. Department of this contact.";
+	d2rq:column "Person.Department";
+	d2rq:datatype xsd:string;
+	.
+map:Person_roles a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_Roles;
+	d2rq:propertyDefinitionLabel "Roles";
+	d2rq:propertyDefinitionComment "Indicate role of the contact, e.g. lab worker or PI. Changed from mref to xref in oct 2011.";
+	d2rq:refersToClassMap map:OntologyTerm;
+	d2rq:join "Person.Roles => OntologyTerm.id";
+	.
+map:Person_address a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_Address;
+	d2rq:propertyDefinitionLabel "Address";
+	d2rq:propertyDefinitionComment "The address of the Contact.";
+	d2rq:column "Person.Address";
+	d2rq:datatype xsd:text;
+	.
+map:Person_phone a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_Phone;
+	d2rq:propertyDefinitionLabel "Phone";
+	d2rq:propertyDefinitionComment "The telephone number of the Contact including the suitable area codes.";
+	d2rq:column "Person.Phone";
+	d2rq:datatype xsd:string;
+	.
+map:Person_email a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_Email;
+	d2rq:propertyDefinitionLabel "Email";
+	d2rq:propertyDefinitionComment "The email address of the Contact.";
+	d2rq:column "Person.Email";
+	d2rq:datatype xsd:string;
+	.
+map:Person_fax a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_Fax;
+	d2rq:propertyDefinitionLabel "Fax";
+	d2rq:propertyDefinitionComment "The fax number of the Contact.";
+	d2rq:column "Person.Fax";
+	d2rq:datatype xsd:string;
+	.
+map:Person_tollFreePhone a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_tollFreePhone;
+	d2rq:propertyDefinitionLabel "tollFreePhone";
+	d2rq:propertyDefinitionComment "A toll free phone number for the Contact, including suitable area codes.";
+	d2rq:column "Person.tollFreePhone";
+	d2rq:datatype xsd:string;
+	.
+map:Person_city a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_City;
+	d2rq:propertyDefinitionLabel "City";
+	d2rq:propertyDefinitionComment "Added from the old definition of MolgenisUser. City of this contact.";
+	d2rq:column "Person.City";
+	d2rq:datatype xsd:string;
+	.
+map:Person_country a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_Country;
+	d2rq:propertyDefinitionLabel "Country";
+	d2rq:propertyDefinitionComment "Added from the old definition of MolgenisUser. Country of this contact.";
+	d2rq:column "Person.Country";
+	d2rq:datatype xsd:string;
+	.
+map:Person_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Person;
+	d2rq:property vocab:Person_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Person.id";
+	d2rq:datatype xsd:int;
+	.
+# Entity Institute
+map:Institute a d2rq:ClassMap;
+	d2rq:dataStorage map:database;
+	d2rq:uriPattern "Institute/@@Institute.id@@";
+	d2rq:class vocab:Institute;
+	d2rq:classDefinitionLabel "";
+	d2rq:classDefinitionComment " A contact is either a person or an organization. Copied from FuGE::Contact. ";
+	.	
+# todo: use the xref labels if they are complete
+# label for Institute using primary key
+map:Institute__label a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property rdfs:label;
+	d2rq:pattern "Institute #@@Institute.id@@";
+	.
+map:Institute_name a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property vocab:Institute_name;
+	d2rq:propertyDefinitionLabel "name";
+	d2rq:propertyDefinitionComment "name";
+	d2rq:column "Institute.name";
+	d2rq:datatype xsd:string;
+	.
+map:Institute_address a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property vocab:Institute_Address;
+	d2rq:propertyDefinitionLabel "Address";
+	d2rq:propertyDefinitionComment "The address of the Contact.";
+	d2rq:column "Institute.Address";
+	d2rq:datatype xsd:text;
+	.
+map:Institute_phone a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property vocab:Institute_Phone;
+	d2rq:propertyDefinitionLabel "Phone";
+	d2rq:propertyDefinitionComment "The telephone number of the Contact including the suitable area codes.";
+	d2rq:column "Institute.Phone";
+	d2rq:datatype xsd:string;
+	.
+map:Institute_email a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property vocab:Institute_Email;
+	d2rq:propertyDefinitionLabel "Email";
+	d2rq:propertyDefinitionComment "The email address of the Contact.";
+	d2rq:column "Institute.Email";
+	d2rq:datatype xsd:string;
+	.
+map:Institute_fax a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property vocab:Institute_Fax;
+	d2rq:propertyDefinitionLabel "Fax";
+	d2rq:propertyDefinitionComment "The fax number of the Contact.";
+	d2rq:column "Institute.Fax";
+	d2rq:datatype xsd:string;
+	.
+map:Institute_tollFreePhone a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property vocab:Institute_tollFreePhone;
+	d2rq:propertyDefinitionLabel "tollFreePhone";
+	d2rq:propertyDefinitionComment "A toll free phone number for the Contact, including suitable area codes.";
+	d2rq:column "Institute.tollFreePhone";
+	d2rq:datatype xsd:string;
+	.
+map:Institute_city a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property vocab:Institute_City;
+	d2rq:propertyDefinitionLabel "City";
+	d2rq:propertyDefinitionComment "Added from the old definition of MolgenisUser. City of this contact.";
+	d2rq:column "Institute.City";
+	d2rq:datatype xsd:string;
+	.
+map:Institute_country a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property vocab:Institute_Country;
+	d2rq:propertyDefinitionLabel "Country";
+	d2rq:propertyDefinitionComment "Added from the old definition of MolgenisUser. Country of this contact.";
+	d2rq:column "Institute.Country";
+	d2rq:datatype xsd:string;
+	.
+map:Institute_id a d2rq:PropertyBridge;
+	d2rq:belongsToClassMap map:Institute;
+	d2rq:property vocab:Institute_id;
+	d2rq:propertyDefinitionLabel "id";
+	d2rq:propertyDefinitionComment "automatically generated id";
+	d2rq:column "Institute.id";
+	d2rq:datatype xsd:int;
+	.

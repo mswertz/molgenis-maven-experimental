@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/9978/molgenis_apps/trunk/modules/file/servlets/file
+END
+uploadfile.java
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/!svn/ver/9978/molgenis_apps/trunk/modules/file/servlets/file/uploadfile.java
+END
+downloadfile.java
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/svn/!svn/ver/9978/molgenis_apps/trunk/modules/file/servlets/file/downloadfile.java
+END
+viewfile.java
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/!svn/ver/9978/molgenis_apps/trunk/modules/file/servlets/file/viewfile.java
+END
